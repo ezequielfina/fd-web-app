@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-8">
+
+    {# 1. BLOQUE DE MENSAJES FLASH (CORREGIDO) #}
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="mb-6 space-y-3">
+                {% for category, message in messages %}
+                    <div class="flex items-center p-4 rounded-lg border shadow-sm
+                        {{ 'bg-red-50 border-red-200 text-red-800' if category == 'error' else 'bg-green-50 border-green-200 text-green-800' }}">
+
+                        <span class="material-symbols-outlined mr-3">
+                            {{ 'warning' if category == 'error' else 'check_circle' }}
+                        </span>
+
+                        <span class="text-sm font-medium">{{ message }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="flex gap-8">
+
+        <div class="w-1/2 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <h2 class="text-lg font-bold text-gray-800 mb-6 flex items-center">
+                <span class="material-symbols-outlined mr-2 text-blue-600">add_business</span>
+                Nueva franquicia
+            </h2>
+
+            <form action="{{ url_for('franquicias.new') }}" method="post" class="space-y-4">
+                <div>
+                    <label for="nf_cuit" class="block text-xs font-semibold text-gray-500 uppercase mb-1">CUIT</label>
+                    <input type="number" name="nf_cuit" id="nf_cuit" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                           placeholder="Ej: 20304050607">
+                </div>
+
+                <div>
+                    <label for="nf_razon_social" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Razón social</label>
+                    <input type="text" name="nf_razon_social" id="nf_razon_social" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all"
+                           placeholder="Nombre de la empresa">
+                </div>
+
+                <button type="submit"
+                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition-colors shadow-md shadow-blue-200 flex justify-center items-center">
+                    <span class="material-symbols-outlined mr-2">save</span>
+                    Guardar Franquicia
+                </button>
+            </form>
+        </div>
+
+        <div class="w-1/2 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <h2 class="text-lg font-bold text-gray-800 mb-6 flex items-center">
+                <span class="material-symbols-outlined mr-2 text-purple-600">group</span>
+                Asignar Operador
+            </h2>
+
+            <form action="{{ url_for('operadores.get') }}" method="GET" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Usuario</label>
+                    <select name="id_usuario" onchange="this.form.submit()"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none bg-white">
+                        <option disabled {{ 'selected' if not sel_usu }}>Seleccione...</option>
+                        {% for u in usuarios %}
+                            <option value="{{ u.id }}" {{ 'selected' if sel_usu == u.id|string }}>{{ u.usuario }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Franquicia</label>
+                    <select name="id_franquicia" id="select-franquicia"
+                            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-purple-500 outline-none bg-white">
+                        <option disabled {{ 'selected' if not sel_fran }}>Seleccione...</option>
+                        {% for f in franquicias %}
+                            <option value="{{ f.id }}" {{ 'selected' if sel_fran == f.id|string }}>{{ f.razon_social }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 font-semibold py-2 rounded-lg transition-colors border border-gray-300">
+                    Consultar Estado
+                </button>
+            </form>
+
+            {% if sel_usu and sel_fran %}
+                <hr class="my-6 border-gray-200">
+
+                <form action="{{ url_for('operadores.get_es_operador') }}" method="POST" class="bg-gray-50 p-4 rounded-lg border border-gray-200">
+                    <input type="hidden" name="id_usuario" value="{{ sel_usu }}">
+                    <input type="hidden" name="id_franquicia" value="{{ sel_fran }}">
+
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-sm font-semibold text-gray-600">Estado Actual:</span>
+                        {% if operador and operador.activo %}
+                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs font-bold border border-green-200">
+                                ASOCIADO
+                            </span>
+                        {% else %}
+                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs font-bold border border-red-200">
+                                NO ASOCIADO
+                            </span>
+                        {% endif %}
+                    </div>
+
+                    {% if operador and operador.activo %}
+                        <button type="submit" name="accion" value="desasociar"
+                                class="w-full bg-red-500 hover:bg-red-600 text-white font-bold py-2 rounded-lg transition-colors shadow-sm">
+                            Desasociar Franquicia
+                        </button>
+                    {% else %}
+                        <button type="submit" name="accion" value="asociar"
+                                class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-2 rounded-lg transition-colors shadow-sm">
+                            Asociar Franquicia
+                        </button>
+                    {% endif %}
+                </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+    const selectFran = document.getElementById('select-franquicia');
+    if(selectFran) {
+        selectFran.addEventListener('change', function() {
+            const id = this.value;
+            const inputCuit = document.getElementById('nf_cuit');
+            const inputRazon = document.getElementById('nf_razon_social');
+
+            if (!id) return;
+
+            fetch(`/franquicias/api/get/${id}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.error) {
+                        if(inputCuit) inputCuit.value = data.cuit;
+                        if(inputRazon) inputRazon.value = data.razon_social;
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+        });
+    }
+</script>
+
+{% endblock %}

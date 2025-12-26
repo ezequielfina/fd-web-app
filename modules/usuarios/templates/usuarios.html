@@ -1,0 +1,140 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="p-8">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="mb-6 space-y-3">
+          {% for category, message in messages %}
+            <div class="flex items-center p-4 rounded-lg border shadow-sm
+                {{ 'bg-red-50 border-red-200 text-red-800' if category == 'error' else 'bg-green-50 border-green-200 text-green-800' }}">
+              <span class="material-symbols-outlined mr-3">
+                {{ 'warning' if category == 'error' else 'check_circle' }}
+              </span>
+              <span class="text-sm font-medium">{{ message }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="flex gap-8">
+        <div class="w-1/2 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <h2 class="text-lg font-bold text-gray-800 mb-6 flex items-center">
+                <span class="material-symbols-outlined mr-2 text-blue-600">person_add</span>
+                Nuevo usuario
+            </h2>
+
+            <form action="{{ url_for('usuarios.new') }}" method="post" class="space-y-4">
+                <div>
+                    <label for="nu_usuario" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Username</label>
+                    <input type="text" name="nu_usuario" id="nu_usuario" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                </div>
+
+                <div>
+                    <label for="nu_password" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Password</label>
+                    <input type="password" name="nu_password" id="nu_password" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                </div>
+
+                <div class="flex items-center">
+                    <input type="checkbox" id="nu_activo" name="nu_activo" value="checked" checked class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500">
+                    <label for="nu_activo" class="ml-2 text-sm text-gray-700 font-semibold">Usuario Activo</label>
+                </div>
+
+                <div>
+                    <label for="select-nu_rol" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Asignar Rol</label>
+                    <select id="select-nu_rol" name="nu_rol" required class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="" selected disabled>-- Seleccione rol --</option>
+                        {% for r in roles %}
+                            <option value="{{ r.nombre }}">{{ r.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-lg transition-colors shadow-md flex justify-center items-center">
+                    <span class="material-symbols-outlined mr-2">save</span> Guardar Usuario
+                </button>
+            </form>
+        </div>
+
+        <div class="w-1/2 bg-white p-6 rounded-xl shadow-sm border border-gray-200">
+            <h2 class="text-lg font-bold text-gray-800 mb-6 flex items-center">
+                <span class="material-symbols-outlined mr-2 text-amber-500">manage_accounts</span>
+                Modificar usuario
+            </h2>
+
+            <form action="{{ url_for('usuarios.update') }}" method="POST" class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Seleccionar usuario</label>
+                    <select id="select-usuario" name="id_modificar" class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="" disabled selected>-- Seleccione para editar --</option>
+                        {% for u in usuarios %}
+                            <option value="{{ u.id }}">{{ u.usuario }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <hr class="my-4 border-gray-100">
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Nombre de Usuario</label>
+                    <input type="text" id="mu_usuario" name="mu_usuario" required
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all">
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase mb-1">Nueva Contraseña (opcional)</label>
+                    <input type="password" id="mu_contra" name="mu_contra"
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none transition-all" placeholder="Dejar en blanco para no cambiar">
+                </div>
+
+                <div class="flex items-center">
+                    <input type="checkbox" id="mu_activo" name="mu_activo" value="checked" class="w-4 h-4 text-amber-600 border-gray-300 rounded focus:ring-amber-500">
+                    <label for="mu_activo" class="ml-2 text-sm text-gray-700 font-semibold">Usuario Activo</label>
+                </div>
+
+                <div>
+                    <label for="mu_rol" class="block text-xs font-semibold text-gray-500 uppercase mb-1">Rol</label>
+                    <select id="mu_rol" name="mu_rol" required class="w-full px-4 py-2 border border-gray-300 rounded-lg outline-none focus:ring-2 focus:ring-blue-500">
+                        {% for r in roles %}
+                            <option value="{{ r.nombre }}">{{ r.nombre }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button type="submit" class="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-2.5 rounded-lg transition-colors">
+                    Actualizar Datos
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('select-usuario').addEventListener('change', function() {
+    const id = this.value;
+    const inputUsuario = document.getElementById('mu_usuario');
+    const checkActivo = document.getElementById('mu_activo');
+    const selectRol = document.getElementById('mu_rol');
+
+    if (!id) return;
+
+    // Llamada corregida a la API de Usuarios
+    fetch(`/usuarios/api/get/${id}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert("Error al cargar datos del usuario");
+            } else {
+                // Sincronizar campos
+                inputUsuario.value = data.usuario;
+                checkActivo.checked = data.activo;
+                selectRol.value = data.rol;
+            }
+        })
+        .catch(error => console.error('Error:', error));
+});
+</script>
+{% endblock %}

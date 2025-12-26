@@ -1,0 +1,16 @@
+{
+  "name": "flaskproject",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "build": "npx tailwindcss -i ./static/src/tailwind.css -o ./static/css/main.css",
+    "watch": "npx tailwindcss -i ./static/src/tailwind.css -o ./static/css/main.css --watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "tailwindcss": "^3.4.19"
+  }
+}

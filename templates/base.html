@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-gray-100"> <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='logo-fd.png') }}">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+    <title>FranqData - {{ module }}</title>
+</head>
+
+<body class="h-screen w-full flex overflow-hidden bg-gray-100">
+
+    <aside class="w-64 bg-white border-r border-gray-200 flex flex-col justify-between flex-shrink-0 z-20">
+
+    <div class="flex flex-col w-full h-full overflow-hidden">
+
+        <div class="h-16 flex items-center justify-center border-b border-gray-100 px-6 flex-shrink-0">
+            <img src="{{ url_for('static', filename='logo-fd.png') }}" alt="logo" class="max-h-10 w-auto object-contain mt-3"/>
+        </div>
+
+        <nav class="flex-1 px-3 py-6 space-y-1 overflow-y-auto">
+
+            <a href="{{ url_for('main.home') }}"
+               class="group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200
+               {{ 'bg-blue-50 text-blue-700' if request.endpoint == 'main.home' else 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                <span class="material-symbols-outlined mr-3 text-2xl group-hover:text-blue-600 transition-colors {{ 'text-blue-600' if request.endpoint == 'main.home' else 'text-gray-400' }}">
+                    home
+                </span>
+                Home
+            </a>
+
+            <a href="{{ url_for('upload_file.upload_file') }}"
+               class="group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200
+               {{ 'bg-blue-50 text-blue-700' if request.endpoint == 'upload_file.upload_file' else 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                <span class="material-symbols-outlined mr-3 text-2xl group-hover:text-blue-600 transition-colors {{ 'text-blue-600' if request.endpoint == 'upload_file.upload_file' else 'text-gray-400' }}">
+                    cloud_upload
+                </span>
+                Cargar archivo
+            </a>
+
+            <a href="{{ url_for('cargas.get') }}"
+               class="group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200
+               {{ 'bg-blue-50 text-blue-700' if request.endpoint == 'cargas.get' else 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                <span class="material-symbols-outlined mr-3 text-2xl group-hover:text-blue-600 transition-colors {{ 'text-blue-600' if request.endpoint == 'cargas.get' else 'text-gray-400' }}">
+                    table_rows_narrow
+                </span>
+                Detalle cargas
+            </a>
+
+            <a href="{{ url_for('punto_venta.get') }}"
+               class="group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200
+               {{ 'bg-blue-50 text-blue-700' if request.endpoint == 'punto_venta.get' else 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                <span class="material-symbols-outlined mr-3 text-2xl group-hover:text-blue-600 transition-colors {{ 'text-blue-600' if request.endpoint == 'punto_venta.get' else 'text-gray-400' }}">
+                    storefront
+                </span>
+                Puntos de venta
+            </a>
+
+            {% if session.get('rol') in ['SUPERADMIN', 'GESTOR'] %}
+                <div class="pt-4 pb-1">
+                    <p class="px-4 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                        Administración
+                    </p>
+                </div>
+
+                <a href="{{ url_for('operadores.get') }}"
+                   class="group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200
+                   {{ 'bg-blue-50 text-blue-700' if request.endpoint == 'operadores.get' else 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                    <span class="material-symbols-outlined mr-3 text-2xl group-hover:text-blue-600 transition-colors {{ 'text-blue-600' if request.endpoint == 'operadores.get' else 'text-gray-400' }}">
+                        support_agent
+                    </span>
+                    Operadores
+                </a>
+
+                <a href="{{ url_for('franquicias.get') }}"
+                   class="group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200
+                   {{ 'bg-blue-50 text-blue-700' if request.endpoint == 'franquicias.get' else 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                    <span class="material-symbols-outlined mr-3 text-2xl group-hover:text-blue-600 transition-colors {{ 'text-blue-600' if request.endpoint == 'franquicias.get' else 'text-gray-400' }}">
+                        factory
+                    </span>
+                    Franquicias
+                </a>
+            {% endif %}
+
+            {% if session.get('rol') == 'SUPERADMIN' %}
+                <a href="{{ url_for('usuarios.get') }}"
+                   class="group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200
+                   {{ 'bg-blue-50 text-blue-700' if request.endpoint == 'usuarios.get' else 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                    <span class="material-symbols-outlined mr-3 text-2xl group-hover:text-blue-600 transition-colors {{ 'text-blue-600' if request.endpoint == 'usuarios.get' else 'text-gray-400' }}">
+                        group
+                    </span>
+                    Usuarios
+                </a>
+
+                <a href="{{ url_for('scripts.get') }}"
+                   class="group flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors duration-200
+                   {{ 'bg-blue-50 text-blue-700' if request.endpoint == 'scripts.get' else 'text-gray-600 hover:bg-gray-50 hover:text-gray-900' }}">
+                    <span class="material-symbols-outlined mr-3 text-2xl group-hover:text-blue-600 transition-colors {{ 'text-blue-600' if request.endpoint == 'scripts.get' else 'text-gray-400' }}">
+                        code
+                    </span>
+                    Scripts
+                </a>
+            {% endif %}
+        </nav>
+    </div>
+
+    <div class="p-4 border-t border-gray-200 bg-white flex-shrink-0">
+        <form action="{{ url_for('auth.logout') }}" method="POST">
+            <button type="submit"
+                    class="flex items-center justify-center w-full px-4 py-2 text-sm font-medium text-red-600 bg-red-50 rounded-lg hover:bg-red-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                <span class="material-symbols-outlined mr-2 text-xl">logout</span>
+                Cerrar Sesión
+            </button>
+        </form>
+    </div>
+
+</aside>
+
+    <div class="flex-1 flex flex-col min-w-0 overflow-hidden">
+
+        <nav class="bg-white shadow-sm border-b border-gray-200 z-10">
+          <div class="px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16 gap-4">
+
+              <div class="flex-1 flex items-center justify-end lg:ml-6">
+                <div class="max-w-lg w-full lg:max-w-xs relative text-gray-400 focus-within:text-blue-500">
+                     <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <span class="material-symbols-outlined text-gray-400">search</span>
+                     </span>
+                    <input id="search-std"
+                           class="block w-full bg-gray-50 py-2 pl-10 pr-3 rounded-md border border-gray-300 leading-5 text-gray-900 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 sm:text-sm transition-all duration-300"
+                           placeholder="Buscar..."
+                           type="search">
+                </div>
+              </div>
+
+               <div class="flex items-center ml-4">
+                <a href="/mi-perfil" class="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+                  <span class="sr-only">Abrir menú de usuario</span>
+                  <img class="h-9 w-9 rounded-full object-cover" src="https://images.icon-icons.com/2556/PNG/512/profile_picture_user_icon_153075.png" alt="">
+                </a>
+              </div>
+
+            </div>
+          </div>
+        </nav>
+
+        <main class="flex-1 overflow-y-auto bg-gray-100 p-8">
+            <h1 class="text-2xl font-semibold">{{ module }}</h1>
+            {% block content %}
+            {% endblock %}
+        </main>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,182 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="max-w-4xl mx-auto p-6">
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="mb-6 space-y-2">
+                {% for category, message in messages %}
+                    <div class="p-4 rounded-lg border flex items-center gap-3
+                        {% if category == 'success' %} bg-green-50 border-green-200 text-green-700
+                        {% else %} bg-red-50 border-red-200 text-red-700 {% endif %}">
+
+                        {% if category == 'success' %}
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        {% else %}
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        {% endif %}
+                        <span class="font-medium">{{ message }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">{{ module }}</h1>
+        <p class="text-gray-500">Asigna el nombre del script (Lambda) a ejecutar para cada Punto de Venta.</p>
+    </div>
+
+    <div class="bg-white rounded-xl shadow-md border border-gray-100 p-6 mb-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        <div>
+            <label for="select_franquicia" class="block text-sm font-semibold text-gray-700 mb-2">1. Franquicia</label>
+            <div class="relative">
+                <select id="select_franquicia" onchange="cargarPuntosVenta()" class="block w-full pl-3 pr-10 py-3 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg border appearance-none transition-all cursor-pointer">
+                    <option selected disabled value="">-- Seleccione Franquicia --</option>
+                    {% for f in franquicias %}
+                        <option value="{{ f.id }}">{{ f.razon_social }}</option>
+                    {% endfor %}
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <label for="select_pv" class="block text-sm font-semibold text-gray-700 mb-2">2. Punto de Venta</label>
+            <div class="relative">
+                <select id="select_pv" onchange="mostrarFormulario()" disabled class="block w-full pl-3 pr-10 py-3 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-lg border appearance-none transition-all cursor-pointer disabled:bg-gray-100 disabled:text-gray-400">
+                    <option selected disabled value="">-- Primero seleccione Franquicia --</option>
+                </select>
+                <div id="spinner-pv" class="hidden absolute inset-y-0 right-8 flex items-center">
+                    <svg class="animate-spin h-4 w-4 text-indigo-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg>
+                </div>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-400">
+                    <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="form-container" class="hidden animate-fade-in">
+        <div class="bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-100">
+
+            <div class="px-6 py-4 border-b bg-gray-50 flex justify-between items-center">
+                <h3 class="text-lg font-bold text-gray-800">Configuración del Script</h3>
+                <span class="text-xs font-mono text-gray-400" id="display-pv-id">ID: --</span>
+            </div>
+
+            <form action="{{ url_for('scripts.setear_script_pv') }}" method="POST" class="p-6">
+
+                <input type="hidden" name="id_pv" id="input_id_pv">
+
+                <div class="mb-6">
+                    <label for="input_algo" class="block text-sm font-medium text-gray-700 mb-1">Nombre del Script (Lambda)</label>
+                    <p class="text-xs text-gray-500 mb-3">Ingresa el nombre clave del script que procesará los archivos de este punto de venta.</p>
+
+                    <div class="relative rounded-md shadow-sm">
+                        <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
+                            <svg class="h-5 w-5 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                            </svg>
+                        </div>
+                        <input type="text" name="algo" id="input_algo"
+                            class="block w-full rounded-lg border-gray-300 pl-10 focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm py-3 border"
+                            placeholder="Ej: script_procesamiento_v1" required>
+                    </div>
+                </div>
+
+                <div class="flex justify-end pt-4 border-t border-gray-100">
+                    <button type="submit" class="inline-flex justify-center rounded-lg border border-transparent bg-indigo-600 py-2 px-6 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition-all active:scale-95">
+                        Guardar Configuración
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Variable global para almacenar los puntos de venta cargados y acceder a sus scripts actuales
+    let puntosVentaCache = [];
+
+    async function cargarPuntosVenta() {
+        const idFranq = document.getElementById('select_franquicia').value;
+        const selectPv = document.getElementById('select_pv');
+        const spinner = document.getElementById('spinner-pv');
+        const formContainer = document.getElementById('form-container');
+
+        // Reset UX
+        selectPv.disabled = true;
+        selectPv.innerHTML = '<option>Cargando...</option>';
+        spinner.classList.remove('hidden');
+        formContainer.classList.add('hidden'); // Ocultar form al cambiar franquicia
+
+        try {
+            // NOTA: Ajusta '/puntos_venta' si tu blueprint tiene otro prefijo URL
+            // Asumo que el blueprint de punto_venta tiene url_prefix='/puntos_venta'
+            const response = await fetch(`/punto_venta/por-franquicia/${idFranq}`);
+
+            if (!response.ok) throw new Error("Error fetching PVs");
+
+            puntosVentaCache = await response.json(); // Guardamos en cache global
+            console.log(puntosVentaCache)
+
+            selectPv.innerHTML = '<option selected disabled value="">-- Seleccione Punto de Venta --</option>';
+
+            if (puntosVentaCache.length === 0) {
+                selectPv.innerHTML += '<option disabled>No hay puntos de venta activos</option>';
+            } else {
+                puntosVentaCache.forEach(pv => {
+                    const option = document.createElement('option');
+                    option.value = pv.id;
+                    option.text = pv.descripcion;
+                    selectPv.appendChild(option);
+                });
+                selectPv.disabled = false;
+            }
+
+        } catch (error) {
+            console.error("Error:", error);
+            selectPv.innerHTML = '<option>Error al cargar</option>';
+        } finally {
+            spinner.classList.add('hidden');
+        }
+    }
+
+    function mostrarFormulario() {
+        const selectPv = document.getElementById('select_pv');
+        const idSelected = selectPv.value;
+
+        // Buscar el objeto completo en el cache para obtener el script actual
+        const pvData = puntosVentaCache.find(pv => pv.id === idSelected);
+
+        if (pvData) {
+            // Llenar el formulario con los datos
+            document.getElementById('input_id_pv').value = pvData.id;
+            document.getElementById('display-pv-id').textContent = `ID: ${pvData.id}`;
+
+            // Asumiendo que tu DTO devuelve el campo 'script'.
+            // Si el campo en DTO se llama diferente, ajusta aquí (ej: pvData.nombre_script)
+            document.getElementById('input_algo').value = pvData.script || '';
+
+            // Mostrar contenedor con animación
+            const container = document.getElementById('form-container');
+            container.classList.remove('hidden');
+        }
+    }
+</script>
+
+<style>
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+        animation: fadeIn 0.4s ease-out forwards;
+    }
+</style>
+{% endblock %}

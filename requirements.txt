@@ -1,0 +1,14 @@
+flask~=3.1.2
+boto3~=1.42.9
+botocore~=1.42.9
+werkzeug~=3.1.4
+pandas~=2.3
+python-dotenv~=1.2.1
+flask-sqlalchemy
+sqlalchemy~=2.0.45
+tailwindcss@3
+@tailwindcss/cli@4.1.18
+psycopg2
+logging~=0.4.9.6
+flask_marshmallow
+marshmallow-sqlalchemy

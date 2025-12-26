@@ -1,0 +1,191 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+        <div class="mb-6 max-w-md w-full">
+            {% for category, message in messages %}
+                <div class="p-4 rounded-md shadow-sm border-l-4
+                    {% if category == 'success' %} bg-green-50 text-green-700 border-green-500
+                    {% elif category == 'warning' %} bg-yellow-50 text-yellow-700 border-yellow-500
+                    {% else %} bg-red-50 text-red-700 border-red-500 {% endif %}">
+                    <p class="font-medium">{{ message }}</p>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endwith %}
+    <div class="flex items-center justify-center min-h-[80vh] py-12 px-4 sm:px-6 lg:px-8">
+        <div class="max-w-md w-full space-y-8 bg-white p-10 rounded-xl shadow-lg border border-gray-100">
+
+            <div class="text-center">
+                <p class="mt-2 text-sm text-gray-600">
+                    Selecciona el contexto y sube los documentos correspondientes.
+                </p>
+            </div>
+
+            <form class="mt-8 space-y-6" action="/upload_file" method="post" enctype="multipart/form-data">
+
+                <div class="rounded-md shadow-sm -space-y-px">
+
+                    <div class="mb-5">
+                        <label for="id_franquicia" class="block text-sm font-medium text-gray-700 mb-1">
+                            Franquicia <span class="text-red-500">*</span>
+                        </label>
+                        <select name="id_franquicia" id="id_franquicia" required onchange="cargarPuntosVenta(this.value)"
+                                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-colors">
+                            <option value="" disabled selected>Seleccione una franquicia...</option>
+                            {% for f in franquicias %}
+                                <option value="{{ f.id }}">{{ f.razon_social }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-5 relative">
+                        <label for="id_pv" class="block text-sm font-medium text-gray-700 mb-1">
+                            Punto de Venta <span class="text-red-500">*</span>
+                        </label>
+
+                        <div id="loadingPv" class="hidden absolute right-0 top-0 mt-8 mr-8">
+                            <svg class="animate-spin h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        </div>
+
+                        <select name="id_pv" id="id_pv" required disabled
+                                class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm bg-gray-50 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm disabled:cursor-not-allowed transition-colors">
+                            <option value="" disabled selected>Primero seleccione una franquicia</option>
+                        </select>
+                        <p class="mt-1 text-xs text-gray-500" id="pvHelpText">Las opciones se cargarán automáticamente.</p>
+                    </div>
+
+                    <div class="mb-5">
+                        <label for="periodo" class="block text-sm font-medium text-gray-700 mb-1 mt-3">
+                            Período de carga <span class="text-red-500">*</span>
+                        </label>
+                        <input type="month" name="periodo" id="periodo" required
+                               class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    </div>
+
+                    <div class="mb-6">
+                        <label class="block text-sm font-medium text-gray-700 mb-2 mt-3">
+                            Archivo a procesar
+                        </label>
+                        <div class="flex items-center justify-center w-full">
+                            <label for="file_to_upload" class="flex flex-col w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer hover:bg-gray-50 hover:border-indigo-500 transition-colors group">
+                                <div class="flex flex-col items-center justify-center pt-5 pb-6">
+                                    <svg class="w-8 h-8 mb-3 text-gray-400 group-hover:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"></path></svg>
+                                    <p class="mb-2 text-sm text-gray-500"><span class="font-semibold">Click para subir</span> o arrastra el archivo</p>
+                                    <p class="text-xs text-gray-500">XLSX, CSV o XML</p>
+                                </div>
+                                <input type="file" name="file_to_upload" id="file_to_upload"
+       accept=".csv, .txt, .xlsx, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, text/plain, text/csv"
+       class="opacity-0 absolute h-32 w-full cursor-pointer" required />
+                            </label>
+                        </div>
+                        <p id="fileName" class="mt-2 text-sm text-indigo-600 font-medium text-center h-5"></p>
+                    </div>
+                </div>
+
+                <button type="submit" class="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all shadow-md hover:shadow-lg">
+                    <span class="absolute left-0 inset-y-0 flex items-center pl-3">
+                        <svg class="h-5 w-5 text-indigo-500 group-hover:text-indigo-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                        </svg>
+                    </span>
+                    Iniciar Carga
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // 1. Lógica para mostrar nombre del archivo seleccionado
+        document.getElementById('file_to_upload').addEventListener('change', function(e) {
+            const fileName = e.target.files[0]?.name;
+            document.getElementById('fileName').textContent = fileName ? `Archivo: ${fileName}` : '';
+        });
+
+        // 2. Lógica AJAX para cargar Puntos de Venta
+        async function cargarPuntosVenta(idFranquicia) {
+            const selectPv = document.getElementById('id_pv');
+            const loadingIndicator = document.getElementById('loadingPv');
+            const helpText = document.getElementById('pvHelpText');
+
+            // Resetear estado
+            selectPv.innerHTML = '<option value="" disabled selected>Cargando...</option>';
+            selectPv.disabled = true;
+            selectPv.classList.add('bg-gray-50');
+            selectPv.classList.remove('bg-white');
+            loadingIndicator.classList.remove('hidden');
+
+            try {
+                // Consumo del endpoint
+                const response = await fetch(`/punto_venta/por-franquicia/${idFranquicia}`);
+
+                if (!response.ok) throw new Error("Error en la red");
+
+                const data = await response.json();
+
+                // Limpiar opciones
+                selectPv.innerHTML = '<option value="" disabled selected>Seleccione una opción...</option>';
+
+                if (data.length > 0) {
+                    // Rellenar opciones
+                    data.forEach(pv => {
+                        const option = document.createElement('option');
+                        option.value = pv.id; // Asume que tu DTO devuelve 'id'
+                        option.textContent = pv.descripcion; // Asume 'descripcion'
+                        selectPv.appendChild(option);
+                    });
+
+                    // Habilitar el select
+                    selectPv.disabled = false;
+                    selectPv.classList.remove('bg-gray-50');
+                    selectPv.classList.add('bg-white');
+                    helpText.textContent = `${data.length} puntos de venta encontrados.`;
+                } else {
+                    selectPv.innerHTML = '<option value="" disabled selected>No hay puntos de venta activos</option>';
+                    helpText.textContent = "No se encontraron sucursales activas.";
+                }
+
+            } catch (error) {
+                console.error("Error cargando PVs:", error);
+                selectPv.innerHTML = '<option value="" disabled selected>Error al cargar</option>';
+                helpText.textContent = "Hubo un error de conexión.";
+            } finally {
+                loadingIndicator.classList.add('hidden');
+            }
+        };
+
+        document.getElementById('file_to_upload').addEventListener('change', function(e) {
+        const fileInput = e.target;
+        const fileNameDisplay = document.getElementById('fileName');
+        const file = fileInput.files[0];
+
+        // Definimos las extensiones permitidas
+        const allowedExtensions = ['csv', 'txt', 'xlsx'];
+
+        if (file) {
+            // Obtenemos la extensión del archivo
+            const fileExtension = file.name.split('.').pop().toLowerCase();
+
+            // Validamos
+            if (!allowedExtensions.includes(fileExtension)) {
+                // UX: Alerta visual y limpiar el input
+                alert('Formato no válido. Solo se permiten archivos .csv, .txt o .xlsx');
+                fileInput.value = ''; // Borra el archivo seleccionado
+                fileNameDisplay.textContent = '';
+                fileNameDisplay.classList.remove('text-indigo-600');
+                return;
+            }
+
+            // Si es válido, mostramos el nombre
+            fileNameDisplay.textContent = `Archivo seleccionado: ${file.name}`;
+            fileNameDisplay.classList.add('text-indigo-600');
+        }
+    });
+    </script>
+{% endblock %}
