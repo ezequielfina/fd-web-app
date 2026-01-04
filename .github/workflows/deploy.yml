@@ -22,6 +22,7 @@ jobs:
           port: 22
           script: |
             cd /home/${{ secrets.EC2_USER }}/webapp/fd-web-app
+            git fetch --all
             git reset --hard origin/main
             source venv/bin/activate
             pip install -r requirements.txt
