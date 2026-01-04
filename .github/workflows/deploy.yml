@@ -21,16 +21,8 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           port: 22
           script: |
-            # 1. Entrar a la carpeta del proyecto
             cd /home/${{ secrets.EC2_USER }}/webapp/fd-web-app
-            git switch main
-            
-            # 2. Bajar los últimos cambios de GitHub
-            git pull origin main
-            
-            # 3. Instalar dependencias si es necesario
+            git reset --hard origin/main
             source venv/bin/activate
             pip install -r requirements.txt
-            
-            # 4. Reiniciar algún servicio (opcional)
             sudo systemctl restart gunicorn
