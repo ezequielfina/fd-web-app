@@ -91,3 +91,4 @@ class Carga(db.Model):
             name='check_car_sta'
         ),
     )
+    

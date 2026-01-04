@@ -6,9 +6,7 @@ pandas~=2.3
 python-dotenv~=1.2.1
 flask-sqlalchemy
 sqlalchemy~=2.0.45
-tailwindcss@3
-@tailwindcss/cli@4.1.18
-psycopg2
+psycopg2-binary
 logging~=0.4.9.6
 flask_marshmallow
 marshmallow-sqlalchemy
