@@ -15,6 +15,21 @@ from modules.scripts.routes import scripts_bp
 
 from models.Usuario import Usuario
 
+import boto3
+from botocore.exceptions import ClientError
+
+def check_s3_connection():
+    print("🔍 Iniciando chequeo de conexión a S3...")
+    # Si usas el enfoque de IAM Roles, no necesitas pasar llaves aquí
+    s3 = boto3.client('s3') 
+    try:
+        s3.list_buckets()
+        print("✅ Conexión a S3: EXITOSA")
+        return True
+    except Exception as e:
+        print(f"❌ Error de conexión a S3: {e}")
+        return False
+
 app = Flask(__name__)
 
 app.register_blueprint(health_bp)
@@ -53,6 +68,7 @@ def verificar_acceso():
 
 
 if __name__ == '__main__':
+    check_s3_connection()
     app.jinja_env.auto_reload = True
     app.config['TEMPLATES_AUTO_RELOAD'] = True
-    app.run(debug=True, port=8080)
+    app.run(debug=True, port=8000)

@@ -18,13 +18,15 @@ def upload_to_s3(file_obj, object_name):
     """
     file_obj: El objeto que viene de Flask (FileStorage)
     object_name: El nombre que tendrá en S3
-    """
+    
     s3_client = boto3.client(
         service_name='s3',
         region_name=region,
         aws_access_key_id=aws_key,
         aws_secret_access_key=aws_secret
     )
+"""
+    s3_client = boto3.client('s3')
 
     try:
         # IMPORTANTE: Usamos upload_fileobj para objetos en memoria (Flask)
