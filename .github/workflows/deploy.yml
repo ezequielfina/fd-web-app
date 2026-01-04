@@ -24,6 +24,13 @@ jobs:
             cd /home/${{ secrets.EC2_USER }}/webapp/fd-web-app
             git fetch --all
             git reset --hard origin/main
+            
             source venv/bin/activate
             pip install -r requirements.txt
+            
+            # En lugar de solo restart, forzamos la limpieza de workers viejos
+            sudo pkill -9 gunicorn || true
             sudo systemctl restart gunicorn
+            
+            # Opcional: reiniciar nginx por si hay cache de estáticos
+            sudo systemctl restart nginx
