@@ -7,3 +7,5 @@ __pycache__/
 error.log
 access.log
 venv/
+fd-ap-server-key.pem
+tunel_rds_ssh.ps1

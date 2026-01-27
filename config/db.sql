@@ -122,3 +122,24 @@ $$
     $$;
 
 alter table puntos_venta add column script varchar(150) default null
+
+create table if not exists scripts (
+    id uuid primary key default gen_random_uuid() not null,
+    validacion varchar(120) not null,
+    transformacion varchar(120)
+);
+
+insert into scripts (validacion) values ('fd-gj-mod-1');
+
+ALTER TABLE puntos_venta
+    add column id_script uuid default null;
+
+alter table puntos_venta
+add constraint fk_pv_scr foreign key (id_script) references scripts(id);
+
+
+alter table cargas
+alter column status type varchar(150);
+
+alter table scripts
+add column descripcion varchar(150) not null default 'Descripción';

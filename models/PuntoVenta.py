@@ -23,7 +23,9 @@ class PuntoVenta(db.Model):
 
     activo: orm.Mapped[bool] = orm.mapped_column(Boolean, nullable=False, default=True)
 
-    script: orm.Mapped[str] = orm.mapped_column(String(150))
+    id_script: orm.Mapped[uuid.UUID] = orm.mapped_column(UUID(as_uuid=True),
+                                                         ForeignKey('scripts.id'),
+                                                         nullable=True)
 
     # Restricción Única Compuesta (UniqueConstraint)
     # Define que no puede haber dos puntos de venta con la misma descripción en la misma franquicia

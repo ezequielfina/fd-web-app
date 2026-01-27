@@ -1,5 +1,5 @@
-from config.ma import ma
 from models.Franquicia import Franquicia
+from config.ma import ma
 
 
 class FranquiciaShema(ma.SQLAlchemyAutoSchema):

@@ -72,6 +72,7 @@ def upload_file():
         id_franq = request.form.get('id_franquicia')
         id_pv = request.form.get('id_pv')
         periodo = request.form.get('periodo')
+        year, month = periodo.strip().split('-', 1)
 
         if file.filename == '':
             flash('Error: No seleccionaste ningún archivo.', 'warning')
@@ -84,7 +85,7 @@ def upload_file():
 
         try:
             extension = os.path.splitext(file.filename)[1].lower()
-            namefile = f'{id_franq}/{periodo}/{uuid.uuid4()}{extension}'
+            namefile = f'id_punto_venta={id_pv}/year={year}/month={month}/{uuid.uuid4()}{extension}'
             # Si pasa la validación, procedemos a S3
             status = upload_to_s3(file, namefile)
 
